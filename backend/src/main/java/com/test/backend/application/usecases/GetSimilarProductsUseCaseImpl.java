@@ -1,12 +1,16 @@
 package com.test.backend.application.usecases;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.springframework.cache.annotation.Cacheable;
 
+import com.test.backend.domain.exception.ExternalServiceException;
+import com.test.backend.domain.exception.ProductNotFoundException;
 import com.test.backend.domain.model.ProductDetail;
 import com.test.backend.domain.port.input.GetSimilarProductsUseCase;
 import com.test.backend.domain.port.output.ProductPort;
@@ -45,7 +49,7 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
             return similarIdsPort.getSimilarProductIds(productId);
         } catch (Exception e) {
             log.error("Failed to get similar IDs: {}", e.getMessage());
-            throw new RuntimeException("Error fetching similar product IDs", e);
+            throw new ExternalServiceException("Error fetching similar product IDs", e);
         }
     }
 
@@ -57,7 +61,7 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
 
             return futures.stream()
                     .map(this::getResult)
-                    .filter(Objects::nonNull)
+                    .filter(product -> product != null)
                     .toList();
         }
     }
@@ -67,7 +71,7 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
             return productPort.getProductById(productId).orElse(null);
         } catch (Exception e) {
             log.warn("Could not fetch product {}: {}", productId, e.getMessage());
-            return null;
+            throw new ProductNotFoundException(productId);
         }
     }
 
@@ -79,5 +83,4 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
             return null;
         }
     }
-
 }
