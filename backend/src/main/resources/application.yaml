@@ -1,0 +1,58 @@
+# Application configuration
+spring:
+    application:
+        name: backend
+    threads:
+        virtual:
+            enabled: true
+
+# Server configuration
+server:
+  port: 5000
+
+# External API configurations
+api:
+    product:
+        base-url: http://localhost:3001
+        timeout: 2000ms
+    similar-ids:
+        base-url: http://localhost:3002
+        timeout: 2000ms
+
+# Resilience4j configuration
+resilience4j:
+    circuitbreaker:
+        configs:
+            default:
+                sliding-window-size: 10
+                failure-rate-threshold: 50
+                wait-duration-in-open-state: 10s
+                permitted-number-of-calls-in-half-open-state: 3
+                minimum-number-of-calls: 5
+        instances:
+            productApi:
+                base-config: default
+            similarIdsApi:
+                base-config: default
+    retry:
+        configs:
+            default:
+                max-attempts: 3
+                wait-duration: 500ms
+                retry-exceptions:
+                    - org.springframework.web.client.ResourceAccessException
+                    - java.net.ConnectException
+        instances:
+            productApi:
+                base-config: default
+            similarIdsApi:
+                base-config: default
+    timelimiter:
+        configs:
+            default:
+                timeout-duration: 2s
+        instances:
+            productApi:
+                base-config: default
+            similarIdsApi:
+                base-config: default
