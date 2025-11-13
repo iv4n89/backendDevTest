@@ -41,7 +41,7 @@ resilience4j:
                 wait-duration: 500ms
                 retry-exceptions:
                     - org.springframework.web.client.ResourceAccessException
-                    - java.net.ConnectionException
+                    - java.net.ConnectException
         instances:
             productApi:
                 base-config: default
