@@ -1,6 +1,7 @@
 package com.test.backend.application.usecases;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -56,7 +57,7 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
 
             return futures.stream()
                     .map(this::getResult)
-                    .filter(product -> product != null)
+                    .filter(Objects::nonNull)
                     .toList();
         }
     }

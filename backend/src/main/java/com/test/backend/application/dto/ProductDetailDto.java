@@ -1,8 +1,10 @@
 package com.test.backend.application.dto;
 
+import java.math.BigDecimal;
+
 public record ProductDetailDto(
         String id,
         String name,
-        double price,
+        BigDecimal price,
         boolean availability) {
 }
