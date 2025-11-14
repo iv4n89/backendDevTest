@@ -28,7 +28,7 @@ public class SimilarIdsApiClient implements SimilarIdsPort {
 
     @Override
     @CircuitBreaker(name = "similarIdsApi", fallbackMethod = "getSimilarIdsFallback")
-    @Cacheable(value = "similarIds", key = "#productId")
+    @Cacheable(value = "similarIds", key = "#productId", unless = "#result.isEmpty()")
     public List<String> getSimilarProductIds(String productId) {
         log.debug("Fetching similar IDs from external API for: {}", productId);
 

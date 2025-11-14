@@ -2,5 +2,7 @@ package com.test.backend.infrastructure.dto;
 
 public record ErrorDto(
     String code,
-    String message
+    String message,
+    int status,
+    String timestamp
 ) {}

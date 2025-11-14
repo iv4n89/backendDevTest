@@ -1,33 +1,29 @@
 package com.test.backend.application.usecases;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.springframework.cache.annotation.Cacheable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.test.backend.domain.exception.ExternalServiceException;
-import com.test.backend.domain.exception.ProductNotFoundException;
 import com.test.backend.domain.model.ProductDetail;
 import com.test.backend.domain.port.input.GetSimilarProductsUseCase;
 import com.test.backend.domain.port.output.ProductPort;
 import com.test.backend.domain.port.output.SimilarIdsPort;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-@RequiredArgsConstructor
 public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final SimilarIdsPort similarIdsPort;
     private final ProductPort productPort;
 
+    public GetSimilarProductsUseCaseImpl(SimilarIdsPort similarIdsPort, ProductPort productPort) {
+        this.similarIdsPort = similarIdsPort;
+        this.productPort = productPort;
+    }
+
     @Override
-    @Cacheable(value = "similarProducts", key = "#productId")
     public List<ProductDetail> execute(String productId) {
         log.info("Getting similar products for: {}", productId);
 
@@ -49,7 +45,7 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
             return similarIdsPort.getSimilarProductIds(productId);
         } catch (Exception e) {
             log.error("Failed to get similar IDs: {}", e.getMessage());
-            throw new ExternalServiceException("Error fetching similar product IDs", e);
+            return List.of();
         }
     }
 
@@ -71,7 +67,7 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
             return productPort.getProductById(productId).orElse(null);
         } catch (Exception e) {
             log.warn("Could not fetch product {}: {}", productId, e.getMessage());
-            throw new ProductNotFoundException(productId);
+            return null;
         }
     }
 

@@ -14,6 +14,7 @@ import com.test.backend.infrastructure.dto.ProductResponse;
 import com.test.backend.infrastructure.mapper.ProductRestMapper;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,8 +28,7 @@ public class ProductController {
 
     @GetMapping("/{productId}/similar")
     public ResponseEntity<List<ProductResponse>> getSimilarProducts(
-        @PathVariable String productId
-    ) {
+            @NotBlank @PathVariable String productId) {
         log.info("GET /product/{}/similar called", productId);
 
         List<ProductDetail> products = getSimilarProductsUseCase.execute(productId);
