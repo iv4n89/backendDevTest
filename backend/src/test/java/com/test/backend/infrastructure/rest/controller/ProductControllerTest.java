@@ -3,6 +3,7 @@ package com.test.backend.infrastructure.rest.controller;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,18 +22,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.test.backend.domain.exception.ExternalServiceException;
 import com.test.backend.domain.model.ProductDetail;
 import com.test.backend.domain.port.input.GetSimilarProductsUseCase;
-import com.test.backend.infrastructure.config.TestBeansConfig;
 import com.test.backend.infrastructure.exception.GlobalExceptionHandler;
 
 @WebMvcTest(controllers = ProductController.class)
-@Import({ GlobalExceptionHandler.class, TestBeansConfig.class })
+@Import({ GlobalExceptionHandler.class })
 @DisplayName("Product Controller Test")
 public class ProductControllerTest {
 
@@ -41,6 +44,16 @@ public class ProductControllerTest {
 
     @Autowired
     private GetSimilarProductsUseCase getSimilarProductsUseCase;
+
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        @Primary
+        public GetSimilarProductsUseCase getSimilarProductsUseCase() {
+            return mock(GetSimilarProductsUseCase.class);
+        }
+    }
 
     @BeforeEach
     void setup() {
@@ -109,10 +122,10 @@ public class ProductControllerTest {
         // When & Then
         mockMvc.perform(get("/product/{productId}/similar", productId))
                 .andExpect(status().isServiceUnavailable())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.code", is("Service Unavailable")))
-            .andExpect(jsonPath("$.status", is(503)))
-            .andExpect(jsonPath("$.message").value(containsString("Service unavailable")));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("Service Unavailable")))
+                .andExpect(jsonPath("$.status", is(503)))
+                .andExpect(jsonPath("$.message").value(containsString("Service unavailable")));
 
         // Verify
         verify(getSimilarProductsUseCase).execute(productId);
@@ -124,15 +137,15 @@ public class ProductControllerTest {
         // Given
         String productId = "1";
         when(getSimilarProductsUseCase.execute(productId))
-            .thenThrow(new RuntimeException("Unexpected error"));
+                .thenThrow(new RuntimeException("Unexpected error"));
 
         // When & Then
         mockMvc.perform(get("/product/{productId}/similar", productId))
-            .andExpect(status().isInternalServerError())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.code", is("Internal Server Error")))
-            .andExpect(jsonPath("$.status", is(500)))
-            .andExpect(jsonPath("$.message", is("Unexpected error")));
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("Internal Server Error")))
+                .andExpect(jsonPath("$.status", is(500)))
+                .andExpect(jsonPath("$.message", is("Unexpected error")));
 
         // Verify
         verify(getSimilarProductsUseCase).execute(productId);
