@@ -9,11 +9,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.test.backend.infrastructure.dto.ErrorDto;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDto handleConstraintViolation(ConstraintViolationException ex) {
+        log.warn("Validation error: {}", ex.getMessage());
+
+        return new ErrorDto(
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "Invalid request parameters",
+                HttpStatus.BAD_REQUEST.value(),
+                String.valueOf(Instant.now()));
+    }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -27,3 +40,4 @@ public class GlobalExceptionHandler {
                 String.valueOf(Instant.now()));
     }
 }
+

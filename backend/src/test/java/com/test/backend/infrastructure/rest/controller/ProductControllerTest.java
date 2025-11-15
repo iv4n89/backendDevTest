@@ -9,7 +9,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print; // ⭐ ESTE
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -148,5 +149,16 @@ public class ProductControllerTest {
 
         // Verify
         verify(getSimilarProductsUseCase).execute(productId);
+    }
+
+    @Test
+    @DisplayName("Should return 400 for blank productId")
+    void shouldReturn400ForBlankProductId() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/product/ /similar"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code", is("Bad Request")))
+                .andExpect(jsonPath("$.status", is(400)));
     }
 }
