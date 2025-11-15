@@ -146,7 +146,7 @@ public class ProductIntegrationTest {
         stubFor(get(urlEqualTo("/product/999/similarids"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "application-json")
+                        .withHeader("Content-Type", "application/json")
                         .withBody("[]")));
 
         // When & Then

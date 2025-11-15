@@ -14,7 +14,7 @@ public class ProductMother {
 
     public static ProductDetail random() {
         return ProductDetail.builder()
-                .id(faker.number().digit().toString())
+                .id(faker.number().digit())
                 .name(faker.commerce().productName())
                 .price(faker.number().randomDouble(2, 10, 1000))
                 .availability(faker.bool().bool())
@@ -41,7 +41,7 @@ public class ProductMother {
 
     public static ProductDetail withName(String name) {
         return ProductDetail.builder()
-                .id(faker.number().digit().toString())
+                .id(faker.number().digit())
                 .name(name)
                 .price(faker.number().randomDouble(2, 10, 1000))
                 .availability(faker.bool().bool())
@@ -50,7 +50,7 @@ public class ProductMother {
 
     public static ProductDetail withName(String name, boolean availability) {
         return ProductDetail.builder()
-                .id(faker.number().digit().toString())
+                .id(faker.number().digit())
                 .name(name)
                 .price(faker.number().randomDouble(2, 10, 1000))
                 .availability(availability)
@@ -59,7 +59,7 @@ public class ProductMother {
 
     public static ProductDetail withPrice(double price) {
         return ProductDetail.builder()
-                .id(faker.number().digit().toString())
+                .id(faker.number().digit())
                 .name(faker.commerce().productName())
                 .price(price)
                 .availability(faker.bool().bool())
@@ -68,7 +68,7 @@ public class ProductMother {
 
     public static ProductDetail withPrice(double price, boolean availability) {
         return ProductDetail.builder()
-                .id(faker.number().digit().toString())
+                .id(faker.number().digit())
                 .name(faker.commerce().productName())
                 .price(price)
                 .availability(availability)
@@ -77,7 +77,7 @@ public class ProductMother {
 
     public static ProductDetail withAvailability(boolean availability) {
         return ProductDetail.builder()
-                .id(faker.number().digit().toString())
+                .id(faker.number().digit())
                 .name(faker.commerce().productName())
                 .price(faker.number().randomDouble(2, 10, 1000))
                 .availability(availability)
