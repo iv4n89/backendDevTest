@@ -17,7 +17,7 @@ public class OpenApiConfiguration {
     private final OpenApiConfigurationProperties openApiConfigurationProperties;
 
     @Bean
-    OpenAPI api() {
+    public OpenAPI api() {
         return new OpenAPI()
                 .servers(List.of(new Server().url(openApiConfigurationProperties.getUrl())))
                 .info(new Info()

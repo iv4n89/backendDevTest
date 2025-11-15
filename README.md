@@ -4,7 +4,7 @@ API REST desarrollada con Spring Boot que proporciona recomendaciones de product
 
 ## 🚀 Inicio Rápido
 
-### Prerequisitos
+### Prerrequisitos
 
 - Java 21
 - Docker y Docker Compose

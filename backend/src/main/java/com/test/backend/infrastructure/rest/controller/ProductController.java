@@ -34,7 +34,7 @@ import org.springframework.validation.annotation.Validated;
 public class ProductController {
     private final GetSimilarProductsUseCase getSimilarProductsUseCase;
 
-    @Operation(summary = "Get similar products", description = "Retrives a list of similar products for a given product ID. "
+    @Operation(summary = "Get similar products", description = "Retrieves a list of similar products for a given product ID. "
             +
             "Returns products with similar characteristics, filtered by availability. " +
             "Uses caching for improved performance and circuit breaker for resilience.")

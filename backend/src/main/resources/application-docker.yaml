@@ -118,4 +118,4 @@ openapi:
   title: "Similar Products Service API"
   description: "API for managing product information and retrieving similar products."
   version: "1.0.0"
-  url: "http://localhost:5000/v1/api-docs"
+  url: "http://localhost:5000"
