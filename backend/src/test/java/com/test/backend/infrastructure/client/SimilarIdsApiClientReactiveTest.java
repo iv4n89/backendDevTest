@@ -1,6 +1,7 @@
 package com.test.backend.infrastructure.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -10,6 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.test.backend.domain.exception.ExternalApiException;
+import com.test.backend.domain.exception.ProductNotFoundException;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -66,35 +70,33 @@ public class SimilarIdsApiClientReactiveTest {
     }
 
     @Test
-    @DisplayName("Should return empty list when API responds with 404")
-    void shouldReturnEmptyListWhenApiResponds404() {
+    @DisplayName("Should throw ProductNotFoundException when API responds with 404")
+    void shouldThrowProductNotFoundExceptionWhenApiResponds404() {
         // Given
         String productId = "999";
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(404)
                 .addHeader("Content-Type", "application/json"));
 
-        // When
-        List<String> result = similarIdsApiClient.getSimilarProductIds(productId);
-
-        // Then
-        assertThat(result).isEmpty();
+        // When & Then
+        assertThrows(ProductNotFoundException.class, () -> {
+            similarIdsApiClient.getSimilarProductIds(productId);
+        });
     }
 
     @Test
-    @DisplayName("Should return empty list when API responds with 500")
-    void shouldReturnEmptyListWhenApiResponds500() {
+    @DisplayName("Should throw ExternalApiException when API responds with 500")
+    void shouldThrowExternalApiExceptionWhenApiResponds500() {
         // Given
         String productId = "1";
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(500)
                 .addHeader("Content-Type", "application/json"));
 
-        // When
-        List<String> result = similarIdsApiClient.getSimilarProductIds(productId);
-
-        // Then
-        assertThat(result).isEmpty();
+        // When & Then
+        assertThrows(ExternalApiException.class, () -> {
+            similarIdsApiClient.getSimilarProductIds(productId);
+        });
     }
 
     @Test

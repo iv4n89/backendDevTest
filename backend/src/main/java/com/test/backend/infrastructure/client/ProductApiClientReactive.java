@@ -35,7 +35,7 @@ public class ProductApiClientReactive implements ProductPort {
         log.debug("Fetching product from external API: {}", productId);
         return getProductByIdReactive(productId).block();
     }
-    
+
     private Optional<ProductDetail> getProductByIdFallback(String productId, Exception ex) {
         log.error("Fallback triggered for product: {}", productId, ex);
         return Optional.empty();

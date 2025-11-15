@@ -29,18 +29,20 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
     public List<ProductDetail> execute(String productId) {
         log.info("Getting similar products for: {}", productId);
 
-        return getSimilarProductsReactive(productId)
+        List<ProductDetail> products = getSimilarProductsReactive(productId)
                 .collectList()
                 .block();
+
+        if (products == null || products.isEmpty()) {
+            log.info("No available similar products found for: {}", productId);
+            return List.of();
+        }
+
+        return products;
     }
 
     private Flux<ProductDetail> getSimilarProductsReactive(String productId) {
         List<String> similarIds = similarIdsPort.getSimilarProductIds(productId);
-
-        if (similarIds.isEmpty()) {
-            log.info("No similar products found for: {}", productId);
-            return Flux.empty();
-        }
 
         return Flux.fromIterable(similarIds)
                 .flatMap(id -> Mono.fromCallable(() -> productPort.getProductById(id))
