@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.test.backend.domain.exception.ExternalApiException;
+import com.test.backend.domain.exception.ProductNotFoundException;
 import com.test.backend.infrastructure.dto.ErrorDto;
 
 import jakarta.validation.ConstraintViolationException;
@@ -15,6 +17,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorDto handleProductNotFound(ProductNotFoundException ex) {
+        log.error("Product not found: {}", ex.getMessage());
+
+        return new ErrorDto(
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value(),
+                String.valueOf(Instant.now()));
+    }
+
+    @ExceptionHandler(ExternalApiException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorDto handleExternalApiException(ExternalApiException ex) {
+        log.error("External API error: {}", ex.getMessage());
+
+        return new ErrorDto(
+                HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(),
+                ex.getMessage(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                String.valueOf(Instant.now()));
+    }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -40,4 +66,3 @@ public class GlobalExceptionHandler {
                 String.valueOf(Instant.now()));
     }
 }
-

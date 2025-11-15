@@ -48,19 +48,14 @@ resilience4j:
   circuitbreaker:
     configs:
       default:
-        register-health-indicator: true
         sliding-window-size: 10
-        minimum-number-of-calls: 5
-        permitted-number-of-calls-in-half-open-state: 3
-        automatic-transition-from-open-to-half-open-enabled: true
-        wait-duration-in-open-state: 10s
         failure-rate-threshold: 50
-        slow-call-rate-threshold: 100
-        slow-call-duration-threshold: 3s
-        record-exceptions:
-          - org.springframework.web.reactive.function.client.WebClientRequestException
-          - java.util.concurrent.TimeoutException
-          - java.io.IOException
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.reactive.function.client.WebClientResponseException$NotFound
     instances:
       productApi:
         base-config: default
@@ -75,8 +70,12 @@ resilience4j:
         enable-exponential-backoff: true
         exponential-backoff-multiplier: 2
         retry-exceptions:
-          - org.springframework.web.reactive.function.client.WebClientRequestException
-          - java.util.concurrent.TimeoutException
+          - org.springframework.web.client.ResourceAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
     instances:
       productApi:
         base-config: default
@@ -106,3 +105,17 @@ management:
     metrics:
       export:
         enabled: true
+
+# SpringDoc / Swagger configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# OpenApi configuration
+openapi:
+  title: "Similar Products Service API"
+  description: "API for managing product information and retrieving similar products."
+  version: "1.0.0"
+  url: "http://localhost:5000"
