@@ -1,7 +1,7 @@
 .PHONY: help start stop test test-k6 clean
 
 # Variables
-COMPOSE=docker compose
+COMPOSE=docker-compose
 BACKEND_SERVICE=backend
 K6_SERVICE=k6
 
@@ -9,7 +9,7 @@ help: ## Shows this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
 
 start: ## Starts the server (build + up)
-	$(COMPOSE) build $(BACKEND_SERVICE) 
+	$(COMPOSE) build $(BACKEND_SERVICE)
 	$(COMPOSE) up -d influxdb grafana simulado $(BACKEND_SERVICE)
 	@echo "✓ Server started at http://localhost:5000"
 
