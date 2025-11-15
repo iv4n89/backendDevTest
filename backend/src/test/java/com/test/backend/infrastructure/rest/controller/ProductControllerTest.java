@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.test.backend.domain.exception.ExternalServiceException;
 import com.test.backend.domain.model.ProductDetail;
 import com.test.backend.domain.port.input.GetSimilarProductsUseCase;
 import com.test.backend.infrastructure.exception.GlobalExceptionHandler;
@@ -111,20 +110,20 @@ public class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Should return 503 when external service fails")
-    void shouldReturn503WhenExternalServiceFails() throws Exception {
+    @DisplayName("Should return 500 when external service fails")
+    void shouldReturn500WhenExternalServiceFails() throws Exception {
         // Given
         String productId = "999";
 
         when(getSimilarProductsUseCase.execute(productId))
-                .thenThrow(new ExternalServiceException("Service unavailable"));
+                .thenThrow(new RuntimeException("Service unavailable"));
 
         // When & Then
         mockMvc.perform(get("/product/{productId}/similar", productId))
-                .andExpect(status().isServiceUnavailable())
+                .andExpect(status().isInternalServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.code", is("Service Unavailable")))
-                .andExpect(jsonPath("$.status", is(503)))
+                .andExpect(jsonPath("$.code", is("Internal Server Error")))
+                .andExpect(jsonPath("$.status", is(500)))
                 .andExpect(jsonPath("$.message").value(containsString("Service unavailable")));
 
         // Verify

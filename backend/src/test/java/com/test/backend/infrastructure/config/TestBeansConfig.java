@@ -3,11 +3,12 @@ package com.test.backend.infrastructure.config;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.test.backend.domain.port.input.GetSimilarProductsUseCase;
 import com.test.backend.domain.port.output.ProductPort;
 import com.test.backend.domain.port.output.SimilarIdsPort;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 import static org.mockito.Mockito.mock;
 
@@ -34,7 +35,13 @@ public class TestBeansConfig {
 
     @Bean
     @Primary
-    public RestClient restClient(RestClient.Builder builder) {
+    public WebClient webClient(WebClient.Builder builder) {
         return builder.build();
+    }
+
+    @Bean
+    @Primary
+    public CircuitBreakerRegistry circuitBreakerRegistry() {
+        return CircuitBreakerRegistry.ofDefaults();
     }
 }

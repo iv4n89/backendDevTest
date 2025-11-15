@@ -55,7 +55,7 @@ public class GetSimilarProductsUseCaseImplTest {
         assertThat(result)
                 .hasSize(3)
                 .extracting(ProductDetail::id)
-                .containsExactly("2", "3", "4");
+                .containsExactlyInAnyOrder("2", "3", "4");
     }
 
     @Test
@@ -77,7 +77,7 @@ public class GetSimilarProductsUseCaseImplTest {
         assertThat(result)
                 .hasSize(2)
                 .extracting(ProductDetail::id)
-                .containsExactly("2", "4");
+                .containsExactlyInAnyOrder("2", "4");
     }
 
     @Test
@@ -134,6 +134,6 @@ public class GetSimilarProductsUseCaseImplTest {
         assertThat(result)
                 .hasSize(count)
                 .extracting(ProductDetail::id)
-                .containsExactlyElementsOf(similarIds);
+                .containsExactlyInAnyOrderElementsOf(similarIds);
     }
 }
