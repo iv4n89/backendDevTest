@@ -1,5 +1,32 @@
 version: "3.3"
 services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backenddevtest-backend-1
+    ports:
+      - "5000:5000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - API_PRODUCT_BASE_URL=http://simulado:80
+    depends_on:
+      - simulado
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5000/actuator/health",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
   influxdb:
     image: influxdb:1.8.2
     ports:
@@ -17,7 +44,7 @@ services:
     volumes:
       - ./shared/grafana:/etc/grafana/provisioning/
   simulado:
-    image : ldabiralai/simulado:latest
+    image: ldabiralai/simulado:latest
     ports:
       - "3001:80"
     volumes:
