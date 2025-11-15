@@ -1,83 +1,56 @@
 package com.test.backend.application.usecases;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.Optional;
 
-import org.springframework.cache.annotation.Cacheable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.test.backend.domain.model.ProductDetail;
 import com.test.backend.domain.port.input.GetSimilarProductsUseCase;
 import com.test.backend.domain.port.output.ProductPort;
 import com.test.backend.domain.port.output.SimilarIdsPort;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-@Slf4j
-@RequiredArgsConstructor
 public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final SimilarIdsPort similarIdsPort;
     private final ProductPort productPort;
 
+    public GetSimilarProductsUseCaseImpl(SimilarIdsPort similarIdsPort, ProductPort productPort) {
+        this.similarIdsPort = similarIdsPort;
+        this.productPort = productPort;
+    }
+
     @Override
-    @Cacheable(value = "similarProducts", key = "#productId")
     public List<ProductDetail> execute(String productId) {
         log.info("Getting similar products for: {}", productId);
 
-        List<String> similarIds = getSimilarId(productId);
+        return getSimilarProductsReactive(productId)
+                .collectList()
+                .block();
+    }
+
+    private Flux<ProductDetail> getSimilarProductsReactive(String productId) {
+        List<String> similarIds = similarIdsPort.getSimilarProductIds(productId);
 
         if (similarIds.isEmpty()) {
             log.info("No similar products found for: {}", productId);
-            return List.of();
+            return Flux.empty();
         }
 
-        List<ProductDetail> products = getProductsInParallel(similarIds);
-
-        log.info("Found {} similar products for: {}", products.size(), productId);
-        return products;
+        return Flux.fromIterable(similarIds)
+                .flatMap(id -> Mono.fromCallable(() -> productPort.getProductById(id))
+                        .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic())
+                        .onErrorResume(ex -> {
+                            log.warn("Error fetching product {}: {}", id, ex.getMessage());
+                            return Mono.just(Optional.empty());
+                        }))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(ProductDetail::availability);
     }
-
-    private List<String> getSimilarId(String productId) {
-        try {
-            return similarIdsPort.getSimilarProductIds(productId);
-        } catch (Exception e) {
-            log.error("Failed to get similar IDs: {}", e.getMessage());
-            throw new RuntimeException("Error fetching similar product IDs", e);
-        }
-    }
-
-    private List<ProductDetail> getProductsInParallel(List<String> similarIds) {
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<Future<ProductDetail>> futures = similarIds.stream()
-                    .map(id -> executor.submit(() -> fetchProduct(id)))
-                    .toList();
-
-            return futures.stream()
-                    .map(this::getResult)
-                    .filter(Objects::nonNull)
-                    .toList();
-        }
-    }
-
-    private ProductDetail fetchProduct(String productId) {
-        try {
-            return productPort.getProductById(productId).orElse(null);
-        } catch (Exception e) {
-            log.warn("Could not fetch product {}: {}", productId, e.getMessage());
-            return null;
-        }
-    }
-
-    private ProductDetail getResult(Future<ProductDetail> future) {
-        try {
-            return future.get();
-        } catch (Exception e) {
-            log.warn("Error retrieving product detail from future: {}", e.getMessage());
-            return null;
-        }
-    }
-
 }

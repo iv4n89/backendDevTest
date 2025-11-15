@@ -44,9 +44,9 @@ public class GetSimilarProductsUseCaseImplTest {
         List<String> similarIds = List.of("2", "3", "4");
 
         when(similarIdsPort.getSimilarProductIds(productId)).thenReturn(similarIds);
-        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2")));
-        when(productPort.getProductById("3")).thenReturn(Optional.of(ProductMother.withId("3")));
-        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4")));
+        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2", true)));
+        when(productPort.getProductById("3")).thenReturn(Optional.of(ProductMother.withId("3", true)));
+        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4", true)));
 
         // When
         List<ProductDetail> result = getSimilarProductsUseCase.execute(productId);
@@ -55,7 +55,7 @@ public class GetSimilarProductsUseCaseImplTest {
         assertThat(result)
                 .hasSize(3)
                 .extracting(ProductDetail::id)
-                .containsExactly("2", "3", "4");
+                .containsExactlyInAnyOrder("2", "3", "4");
     }
 
     @Test
@@ -66,9 +66,9 @@ public class GetSimilarProductsUseCaseImplTest {
         List<String> similarIds = List.of("2", "3", "4");
 
         when(similarIdsPort.getSimilarProductIds(productId)).thenReturn(similarIds);
-        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2")));
+        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2", true)));
         when(productPort.getProductById("3")).thenReturn(Optional.empty());
-        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4")));
+        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4", true)));
 
         // When
         List<ProductDetail> result = getSimilarProductsUseCase.execute(productId);
@@ -77,7 +77,7 @@ public class GetSimilarProductsUseCaseImplTest {
         assertThat(result)
                 .hasSize(2)
                 .extracting(ProductDetail::id)
-                .containsExactly("2", "4");
+                .containsExactlyInAnyOrder("2", "4");
     }
 
     @Test
@@ -125,7 +125,7 @@ public class GetSimilarProductsUseCaseImplTest {
 
         when(similarIdsPort.getSimilarProductIds(productId)).thenReturn(similarIds);
         similarIds.forEach(id -> when(productPort.getProductById(id))
-                .thenReturn(Optional.of(ProductMother.withId(id))));
+                .thenReturn(Optional.of(ProductMother.withId(id, true))));
 
         // When
         List<ProductDetail> result = getSimilarProductsUseCase.execute(productId);
@@ -134,6 +134,6 @@ public class GetSimilarProductsUseCaseImplTest {
         assertThat(result)
                 .hasSize(count)
                 .extracting(ProductDetail::id)
-                .containsExactlyElementsOf(similarIds);
+                .containsExactlyInAnyOrderElementsOf(similarIds);
     }
 }

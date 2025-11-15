@@ -1,10 +1,14 @@
 # Application configuration
 spring:
-    application:
-        name: backend
-    threads:
-        virtual:
-            enabled: true
+  application:
+    name: backend
+  threads:
+    virtual:
+      enabled: true
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=10m
 
 # Server configuration
 server:
@@ -12,47 +16,74 @@ server:
 
 # External API configurations
 api:
-    product:
-        base-url: http://localhost:3001
-        timeout: 2000ms
-    similar-ids:
-        base-url: http://localhost:3002
-        timeout: 2000ms
+  product:
+    base-url: http://localhost:3001
 
 # Resilience4j configuration
 resilience4j:
-    circuitbreaker:
-        configs:
-            default:
-                sliding-window-size: 10
-                failure-rate-threshold: 50
-                wait-duration-in-open-state: 10s
-                permitted-number-of-calls-in-half-open-state: 3
-                minimum-number-of-calls: 5
-        instances:
-            productApi:
-                base-config: default
-            similarIdsApi:
-                base-config: default
-    retry:
-        configs:
-            default:
-                max-attempts: 3
-                wait-duration: 500ms
-                retry-exceptions:
-                    - org.springframework.web.client.ResourceAccessException
-                    - java.net.ConnectException
-        instances:
-            productApi:
-                base-config: default
-            similarIdsApi:
-                base-config: default
-    timelimiter:
-        configs:
-            default:
-                timeout-duration: 2s
-        instances:
-            productApi:
-                base-config: default
-            similarIdsApi:
-                base-config: default
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+    instances:
+      productApi:
+        base-config: default
+      similarIdsApi:
+        base-config: default
+
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.client.HttpClientErrorException$BadRequest
+    instances:
+      productApi:
+        base-config: default
+      similarIdsApi:
+        base-config: default
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
+    instances:
+      productApi:
+        base-config: default
+      similarIdsApi:
+        base-config: default
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.test.backend: DEBUG
+    io.github.resilience4j: DEBUG
