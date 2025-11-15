@@ -48,6 +48,7 @@ resilience4j:
         minimum-number-of-calls: 5
         ignore-exceptions:
           - org.springframework.web.client.HttpClientErrorException$NotFound
+          - org.springframework.web.reactive.function.client.WebClientResponseException$NotFound
     instances:
       productApi:
         base-config: default
@@ -104,3 +105,17 @@ logging:
     root: INFO
     com.test.backend: DEBUG
     io.github.resilience4j: DEBUG
+
+# SpringDoc / Swagger configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# OpenApi configuration
+openapi:
+  title: "Similar Products Service API"
+  description: "API for managing product information and retrieving similar products."
+  version: "1.0.0"
+  url: "http://localhost:5000"
