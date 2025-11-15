@@ -30,7 +30,7 @@ public class ProductApiClient implements ProductPort {
 
     @Override
     @CircuitBreaker(name = "productApi", fallbackMethod = "getProductByIdFallback")
-    @Cacheable(value = "productDetails", key = "#productId", unless = "#result.isEmpty()")
+    @Cacheable(value = "productDetails", key = "#productId")
     public Optional<ProductDetail> getProductById(String productId) {
         log.debug("Fetching product from external API: {}", productId);
 

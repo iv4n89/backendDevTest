@@ -112,7 +112,7 @@ public class ProductControllerTest {
 
     @Test
     @DisplayName("Should return 503 when external service fails")
-    void shouldREturn503WhenExternalServiceFails() throws Exception {
+    void shouldReturn503WhenExternalServiceFails() throws Exception {
         // Given
         String productId = "999";
 

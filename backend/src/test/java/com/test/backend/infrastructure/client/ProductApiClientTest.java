@@ -73,7 +73,7 @@ public class ProductApiClientTest {
 
     @Test
     @DisplayName("Should return empty when API responds with 404")
-    void shouldResturnEmptyWhenApiRespondsNotFound() {
+    void shouldReturnEmptyWhenApiRespondsNotFound() {
         // Given
         mockServer.expect(requestTo(BASE_URL + "/product/" + PRODUCT_ID))
                 .andExpect(method(HttpMethod.GET))

@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executor;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -45,9 +44,9 @@ public class GetSimilarProductsUseCaseImplTest {
         List<String> similarIds = List.of("2", "3", "4");
 
         when(similarIdsPort.getSimilarProductIds(productId)).thenReturn(similarIds);
-        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2")));
-        when(productPort.getProductById("3")).thenReturn(Optional.of(ProductMother.withId("3")));
-        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4")));
+        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2", true)));
+        when(productPort.getProductById("3")).thenReturn(Optional.of(ProductMother.withId("3", true)));
+        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4", true)));
 
         // When
         List<ProductDetail> result = getSimilarProductsUseCase.execute(productId);
@@ -67,9 +66,9 @@ public class GetSimilarProductsUseCaseImplTest {
         List<String> similarIds = List.of("2", "3", "4");
 
         when(similarIdsPort.getSimilarProductIds(productId)).thenReturn(similarIds);
-        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2")));
+        when(productPort.getProductById("2")).thenReturn(Optional.of(ProductMother.withId("2", true)));
         when(productPort.getProductById("3")).thenReturn(Optional.empty());
-        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4")));
+        when(productPort.getProductById("4")).thenReturn(Optional.of(ProductMother.withId("4", true)));
 
         // When
         List<ProductDetail> result = getSimilarProductsUseCase.execute(productId);
@@ -126,7 +125,7 @@ public class GetSimilarProductsUseCaseImplTest {
 
         when(similarIdsPort.getSimilarProductIds(productId)).thenReturn(similarIds);
         similarIds.forEach(id -> when(productPort.getProductById(id))
-                .thenReturn(Optional.of(ProductMother.withId(id))));
+                .thenReturn(Optional.of(ProductMother.withId(id, true))));
 
         // When
         List<ProductDetail> result = getSimilarProductsUseCase.execute(productId);

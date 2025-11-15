@@ -58,6 +58,7 @@ public class GetSimilarProductsUseCaseImpl implements GetSimilarProductsUseCase 
             return futures.stream()
                     .map(this::getResult)
                     .filter(product -> product != null)
+                    .filter(ProductDetail::availability)
                     .toList();
         }
     }

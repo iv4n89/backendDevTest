@@ -16,7 +16,7 @@ import com.test.backend.infrastructure.dto.ProductResponse;
 public class ProductRestMapperTest {
 
     @Test
-    @DisplayName("Shuld map ProductDetail to ProductResponse")
+    @DisplayName("Should map ProductDetail to ProductResponse")
     void shouldMapProductDetailToProductResponse() {
         // Given
         ProductDetail productDetail = ProductMother.random();
