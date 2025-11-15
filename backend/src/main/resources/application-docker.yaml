@@ -1,27 +1,49 @@
+# Application configuration
 spring:
   application:
     name: backend
-  cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=10m
-    cache-names:
-      - productDetails
-      - similarIds
+  threads:
+    virtual:
+      enabled: true
 
+# Cache configuration
+cache:
+  caffeine:
+    maximum-size: 1000
+    expire-after-write: 10m
+    record-stats: true
+
+# External API configurations
 api:
   product:
     base-url: ${API_PRODUCT_BASE_URL:http://simulado:3000}
 
+# WebClient configuration
+webclient:
+  connection-pool:
+    max-connections: 500
+    max-idle-time: 20s
+    max-life-time: 60s
+    pending-acquire-timeout: 60s
+    evict-in-background: 120s
+  timeouts:
+    connect-timeout: 2000
+    response-timeout: 3s
+    read-timeout: 3s
+    write-timeout: 3s
+
+# Server configuration
 server:
   port: 5000
 
+# Logging configuration
 logging:
   level:
     root: INFO
     com.test.backend: INFO
     io.github.resilience4j: INFO
 
+# Resilience4j configuration
 resilience4j:
   circuitbreaker:
     configs:
@@ -71,6 +93,7 @@ resilience4j:
       similarIdsApi:
         base-config: default
 
+# Actuator configuration
 management:
   endpoints:
     web:
