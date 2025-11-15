@@ -1,0 +1,12 @@
+target/
+.mvn/
+*.iml
+.idea/
+.classpath
+.project
+.settings/
+.vscode/
+*.log
+*.md
+Dockerfile
+.dockerignore

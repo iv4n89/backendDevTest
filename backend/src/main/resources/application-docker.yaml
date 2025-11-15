@@ -13,14 +13,10 @@ cache:
     expire-after-write: 10m
     record-stats: true
 
-# Server configuration
-server:
-  port: 5000
-
 # External API configurations
 api:
   product:
-    base-url: http://localhost:3001
+    base-url: ${API_PRODUCT_BASE_URL:http://simulado:3000}
 
 # WebClient configuration
 webclient:
@@ -36,18 +32,35 @@ webclient:
     read-timeout: 3s
     write-timeout: 3s
 
+# Server configuration
+server:
+  port: 5000
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.test.backend: INFO
+    io.github.resilience4j: INFO
+
 # Resilience4j configuration
 resilience4j:
   circuitbreaker:
     configs:
       default:
+        register-health-indicator: true
         sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        permitted-number-of-calls-in-half-open-state: 3
         minimum-number-of-calls: 5
-        ignore-exceptions:
-          - org.springframework.web.client.HttpClientErrorException$NotFound
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 10s
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 100
+        slow-call-duration-threshold: 3s
+        record-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
     instances:
       productApi:
         base-config: default
@@ -62,12 +75,8 @@ resilience4j:
         enable-exponential-backoff: true
         exponential-backoff-multiplier: 2
         retry-exceptions:
-          - org.springframework.web.client.ResourceAccessException
-          - java.net.ConnectException
-          - java.net.SocketTimeoutException
-        ignore-exceptions:
-          - org.springframework.web.client.HttpClientErrorException$NotFound
-          - org.springframework.web.client.HttpClientErrorException$BadRequest
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - java.util.concurrent.TimeoutException
     instances:
       productApi:
         base-config: default
@@ -89,7 +98,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,metrics,prometheus
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
@@ -97,10 +106,3 @@ management:
     metrics:
       export:
         enabled: true
-
-# Logging configuration
-logging:
-  level:
-    root: INFO
-    com.test.backend: DEBUG
-    io.github.resilience4j: DEBUG
