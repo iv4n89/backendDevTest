@@ -1,5 +1,16 @@
 package com.test.backend.integration;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,16 +19,15 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("Product Integration Tests")
@@ -27,19 +37,25 @@ public class ProductIntegrationTest {
     private int port;
 
     private static WireMockServer wireMockServer;
+    private static int wireMockPort;
 
+    // Initialize WireMock server before all tests
+    // use dynamic port to avoid conflicts with mock server
     @BeforeAll
     static void setupWireMock() {
-        wireMockServer = new WireMockServer(3001);
+        wireMockServer = new WireMockServer(
+                WireMockConfiguration.wireMockConfig().dynamicPort());
         wireMockServer.start();
-        WireMock.configureFor("localhost", 3001);
+
+        wireMockPort = wireMockServer.port();
+
+        WireMock.configureFor("localhost", wireMockPort);
     }
 
-    @AfterAll
-    static void tearDownWireMock() {
-        if (wireMockServer != null) {
-            wireMockServer.stop();
-        }
+    @DynamicPropertySource
+    static void overrideProperties(DynamicPropertyRegistry registry) {
+        registry.add("api.product.base-url",
+                () -> "http://localhost:" + wireMockPort);
     }
 
     @BeforeEach
@@ -47,6 +63,13 @@ public class ProductIntegrationTest {
         RestAssured.port = port;
         RestAssured.baseURI = "http://localhost";
         wireMockServer.resetAll();
+    }
+
+    @AfterAll
+    static void tearDownWireMock() {
+        if (wireMockServer != null && wireMockServer.isRunning()) {
+            wireMockServer.stop();
+        }
     }
 
     @Test
