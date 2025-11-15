@@ -83,6 +83,12 @@ Los resultados de los tests se pueden visualizar en **Grafana**: http://localhos
 
 ## 📚 Documentación API
 
+### Usando Make
+
+```bash
+make swagger
+```
+
 ### Swagger UI
 
 La documentación interactiva de la API está disponible en:

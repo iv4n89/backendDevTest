@@ -16,6 +16,11 @@ start: ## Starts the server (build + up)
 stop: ## Stops all services
 	$(COMPOSE) down
 
+swagger: ## Opens Swagger UI in the browser
+	@$(COMPOSE) ps $(BACKEND_SERVICE) | grep -q "Up" || $(MAKE) start
+	@$(COMPOSE) exec $(BACKEND_SERVICE) sh -c 'timeout 90 sh -c "until wget -q --spider http://localhost:5000/actuator/health; do sleep 2; done"' || (echo "Backend failed to start" && exit 1)
+	@xdg-open http://localhost:5000/swagger-ui.html || open http://localhost:5000/swagger-ui.html
+
 test: ## Runs application tests
 	cd backend && ./mvnw test
 
